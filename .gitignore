@@ -5,9 +5,10 @@
 
 #visual studio user files]
 .vs/
-*csproj.user
 *.suo
-
+*csproj.user
+*.xproj.user
+project.lock.json
 
 #compiled files
 artifacts
