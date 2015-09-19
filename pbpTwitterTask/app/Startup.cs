@@ -1,34 +1,43 @@
 ﻿using Microsoft.AspNet.Builder;
 using Microsoft.AspNet.Hosting;
 
+using Microsoft.Framework.Configuration;
 using Microsoft.Framework.DependencyInjection;
-
+using Microsoft.Framework.Runtime;
 
 
 namespace katbyte.pbpTwitterTask {
 
     public class Startup {
 
-       // public IConfiguration Configuration { get; set; }
+        /// <summary>
+        /// Configuration from config.json
+        /// </summary>
+        public IConfiguration configuration { get; set; }
 
 
-        public Startup(IHostingEnvironment env) {
+        public Startup(IHostingEnvironment env, IApplicationEnvironment appEnv) {
 
-
-       /*     Configuration = new Configuration()
+            //load app config.json
+            configuration = new ConfigurationBuilder(appEnv.ApplicationBasePath)
                 .AddJsonFile("config.json")
-                .AddEnvironmentVariables();*/
+                .AddEnvironmentVariables()
+                .Build();
 
         }
 
-        // This method gets called by a runtime.
+
         // Use this method to add services to the container
         public void ConfigureServices(IServiceCollection services) {
             services.AddMvc();
-            // Uncomment the following line to add Web API services which makes it easier to port Web API 2 controllers.
-            // You will also need to add the Microsoft.AspNet.Mvc.WebApiCompatShim package to the 'dependencies' section of project.json.
-            // services.AddWebApiConventions();
+
+            //configure app
+            //TODO explore/investigate
+            //services.Configure<AppCfg>(configuration);
+            AppCfg.Configure(configuration);
+
         }
+
 
         // Configure is called after ConfigureServices is called.
         public void Configure(IApplicationBuilder app, IHostingEnvironment env) {
@@ -37,6 +46,7 @@ namespace katbyte.pbpTwitterTask {
 
             // Add MVC to the request pipeline.
             app.UseMvc();
+
 
         }
 

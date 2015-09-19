@@ -90,6 +90,9 @@ namespace katbyte.pbpTwitterTask.services {
 
 
     //authenticated requests
+
+            //IAppOnlyOAuthToken = new AppOnlyOAuthToken
+
         /// <summary>
         /// makes an authenticated request to url with token. If token is null a new BearerAccessToken is created
         /// </summary>

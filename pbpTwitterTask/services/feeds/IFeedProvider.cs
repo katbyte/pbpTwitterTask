@@ -1,4 +1,4 @@
-﻿using System;
+﻿using System.Collections.Generic;
 
 using katbyte.pbpTwitterTask.models;
 
@@ -10,7 +10,21 @@ namespace katbyte.pbpTwitterTask.services {
     /// represents a class that can provide feeds for an account
     /// </summary>
     public interface IFeedProvider {
-        Feed GetFeed(string account, DateTime? newerThen = null);
+
+        /// <summary>
+        /// get a single feed
+        /// </summary>
+        Feed GetFeed(string account);
+
+        /// <summary>
+        /// get multiple feeds
+        /// </summary>
+        IEnumerable<Feed> GetFeeds(IEnumerable<string> account);
+
+        /// <summary>
+        /// get multiple feeds aggregated into one
+        /// </summary>
+        AggregatedFeeds GetAggregatedFeeds(IEnumerable<string> account);
     }
 
 }

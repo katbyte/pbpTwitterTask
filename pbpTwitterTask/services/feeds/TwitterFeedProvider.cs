@@ -1,9 +1,9 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 
 using katbyte.pbpTwitterTask.models;
-
 
 using Newtonsoft.Json.Linq;
 
@@ -13,27 +13,37 @@ namespace katbyte.pbpTwitterTask.services {
 
     public class TwitterFeedProvider : IFeedProvider {
 
-
-
-        private const string twitterApiKey    = "Lr7XAVhjUCNuvltyYBnTooxXa";
-        private const string twitterApiSecret = "36MZY94Xd67S0wHJh7L6OIcKBSyFmvDnmc71fjC20BGV28qhmC";
-
-        private const string twitterApiUrlAppAuth = "https://api.twitter.com/oauth2/token";
-
-
-        private static AppOnlyOAuth oauth = new AppOnlyOAuth(twitterApiKey, twitterApiSecret, twitterApiUrlAppAuth);
-
-
+    //constants
+        //twitter date format is... special
         const string TwitterDateTimeFormat = "ddd MMM dd HH:mm:ss zzzz yyyy";
+
+
+
+    //configuration
+
+        private IConfigFeed cfg;
+
+        private static AppOnlyOAuth oauth;
+
+
+
+
+
+        public TwitterFeedProvider(IConfigOAuthApi oauthCfg, IConfigFeed feedCfg) {
+            cfg = feedCfg;
+            oauth = new AppOnlyOAuth(oauthCfg.key, oauthCfg.secret, oauthCfg.appTokenUrl);
+        }
+
+
 
 
         //ICallOAuthApi OAuthApi = new TwitterOAuthApi()
 
 
-        public  Feed GetFeed(string account, DateTime? newerThen = null) {
+        public  Feed GetFeed(string account) {
 
-            //default newerThen
-            newerThen = newerThen ?? DateTime.MinValue;
+            var newerThen = cfg.daysToShow == 0 ? DateTime.MinValue : DateTime.Now.AddDays(-1 * cfg.daysToShow);
+
 
             //cannot filter by date, so retrive the maximum and limit below
             var url = string.Format("https://api.twitter.com/1.1/statuses/user_timeline.json?count={0}&screen_name={1}&exclude_replies=1", 200, account);
@@ -49,6 +59,19 @@ namespace katbyte.pbpTwitterTask.services {
 
         }
 
+        //get Feeds
+
+        public IEnumerable<Feed> GetFeeds(IEnumerable<string> accounts) {
+            return accounts.Select(a => GetFeed(a));
+        }
+
+        public AggregatedFeeds GetAggregatedFeeds(IEnumerable<string> accounts) {
+            return new AggregatedFeeds(GetFeeds(accounts));
+        }
+
+
+        //helpers
+        //ParseDate
     }
 
 }
