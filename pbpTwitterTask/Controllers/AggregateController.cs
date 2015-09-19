@@ -7,7 +7,7 @@ using katbyte.pbpTwitterTask.services;
 
 
 
-namespace katbyte.pbpTwitterTask.Controllers {
+namespace katbyte.pbpTwitterTask.controllers {
 
 
     /// <summary>
@@ -19,7 +19,7 @@ namespace katbyte.pbpTwitterTask.Controllers {
         /// <summary>
         /// feed provider
         /// </summary>
-        public IFeedProvider feedProvider = new TwitterFeedProvider(AppCfg.oauth, AppCfg.feed);
+        public IFeedProvider feedProvider = new TwitterFeedProvider(AppCfg.twitterFeed);
 
 
         /// <summary>
@@ -34,14 +34,14 @@ namespace katbyte.pbpTwitterTask.Controllers {
     //routes
         //this should redirect to a readme/documentation
         //for now we'll just redirect to the default account
-        //documentation thou example!
+        //documentation via example!
         /// <summary>
         /// redirects to aggregate/default1;default2;default3...
         /// </summary>
         /// <returns></returns>
         [HttpGet]
         public ActionResult Get() {
-            return Redirect("aggregate/" + String.Join(";", AppCfg.defaultAccounts));
+            return Redirect("aggregate/" + String.Join(";", feedProvider.cfg.defaultAccounts));
         }
 
 
@@ -51,7 +51,7 @@ namespace katbyte.pbpTwitterTask.Controllers {
             //get feeds for accounts and aggregate them
             var aggregated = feedProvider.GetAggregatedFeeds(accounts.Split(new []{';'}, StringSplitOptions.RemoveEmptyEntries));
 
-            //build response providing only the data we need
+            //build response providing only the data we want to be shown
             var response = new {
                 accounts = aggregated.feeds.Select(f => new {
                     account  = f.account,

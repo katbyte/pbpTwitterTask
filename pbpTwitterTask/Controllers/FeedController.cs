@@ -7,7 +7,7 @@ using katbyte.pbpTwitterTask.services;
 
 
 
-namespace katbyte.pbpTwitterTask.Controllers {
+namespace katbyte.pbpTwitterTask.controllers {
 
 
     /// <summary>
@@ -19,20 +19,20 @@ namespace katbyte.pbpTwitterTask.Controllers {
         /// <summary>
         /// feed provider
         /// </summary>
-        public IFeedProvider feedProvider = new TwitterFeedProvider(AppCfg.oauth, AppCfg.feed);
+        public IFeedProvider feedProvider = new TwitterFeedProvider(AppCfg.twitterFeed);
 
 
 
         //this should redirect to a readme/documentation
         //for now we'll just redirect to the default account
-        //documentation thou example!
+        //documentation via example!
         /// <summary>
         /// redirects to feed/{AppCfg.defaultAccount}
         /// </summary>
         /// <returns></returns>
         [HttpGet]
         public ActionResult    Get() {
-            return Redirect("feed/" + AppCfg.defaultAccount);
+            return Redirect("feed/" + feedProvider.cfg.defaultAccount);
         }
 
         /// <summary>

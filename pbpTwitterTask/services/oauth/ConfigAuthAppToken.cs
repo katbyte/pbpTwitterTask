@@ -1,4 +1,6 @@
-﻿using Microsoft.Framework.Configuration;
+﻿using System;
+
+using Microsoft.Framework.Configuration;
 
 
 
@@ -7,7 +9,7 @@ namespace katbyte.pbpTwitterTask.services {
     /// <summary>
     /// OAuth API configuration details
     /// </summary>
-    public class ConfigOAuthApi : IConfigOAuthApi {
+    public class ConfigAuthAppToken : IConfigAuthAppToken {
 
     //settings
         /// <summary>
@@ -25,20 +27,25 @@ namespace katbyte.pbpTwitterTask.services {
         /// </summary>
         public string appTokenUrl { get; private set; }
 
+         /// <summary>
+        /// How long to cache a token for, 0 to disable
+        /// </summary>
+        public int cacheForMin { get; private set; }
 
 
     //constructors
 
         //disable default constructor to force proper initialization
-        private ConfigOAuthApi() { }
+        private ConfigAuthAppToken() { }
 
         /// <summary>
         /// configure from config.json in an IConfiguration
         /// </summary>
-        public ConfigOAuthApi(IConfiguration cfg) {
-            key         = cfg.Get("oauth:key");
-            secret      = cfg.Get("oauth:secret");
-            appTokenUrl = cfg.Get("oauth:app_token_url");
+        public ConfigAuthAppToken(IConfiguration cfg) {
+            key         = cfg.Get("key");
+            secret      = cfg.Get("secret");
+            appTokenUrl = cfg.Get("app_token_url");
+            cacheForMin = Int32.Parse(cfg.Get("cache_for_min") ?? "0");
         }
 
 
@@ -46,7 +53,7 @@ namespace katbyte.pbpTwitterTask.services {
         /// <summary>
         /// configure with provided values
         /// </summary>
-        public ConfigOAuthApi(string key, string secret, string appTokenUrl) {
+        public ConfigAuthAppToken(string key, string secret, string appTokenUrl) {
             this.key         = key;
             this.secret      = secret;
             this.appTokenUrl = appTokenUrl;

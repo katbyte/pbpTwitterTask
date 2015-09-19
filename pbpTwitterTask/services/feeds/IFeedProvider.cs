@@ -12,6 +12,12 @@ namespace katbyte.pbpTwitterTask.services {
     public interface IFeedProvider {
 
         /// <summary>
+        /// returns the feed configuration
+        /// </summary>
+        //TODO should def be IConfigFeed
+        IConfigOAuthFeed cfg { get; }
+
+        /// <summary>
         /// get a single feed
         /// </summary>
         Feed GetFeed(string account);

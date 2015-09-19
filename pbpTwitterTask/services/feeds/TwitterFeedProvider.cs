@@ -2,76 +2,113 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
-
-using katbyte.pbpTwitterTask.models;
+using System.Threading.Tasks;
 
 using Newtonsoft.Json.Linq;
+
+using katbyte.pbpTwitterTask.models;
 
 
 
 namespace katbyte.pbpTwitterTask.services {
 
+
     public class TwitterFeedProvider : IFeedProvider {
 
     //constants
         //twitter date format is... special
-        const string TwitterDateTimeFormat = "ddd MMM dd HH:mm:ss zzzz yyyy";
+        public const string twitterDateTimeFormat = "ddd MMM dd HH:mm:ss zzzz yyyy";
+        public const string twitterApiTimelineUrl = "https://api.twitter.com/1.1/statuses/user_timeline.json?count={0}&screen_name={1}&exclude_replies=1";
 
+        //cannot filter by date, so retrieve the maximum and limit below
+        public const int tweetFetchCount = 200;
 
 
     //configuration
+        /// <summary>
+        /// feed configuration data
+        /// </summary>
+        public IConfigOAuthFeed cfg { get; private set; }
 
-        private IConfigFeed cfg;
+    //api
+        /// <summary>
+        /// handles oauth app api access to twitter
+        /// </summary>
+        protected OAuthAppClient api { get; private set; }
 
-        private static AppOnlyOAuth oauth;
 
 
-
-
-
-        public TwitterFeedProvider(IConfigOAuthApi oauthCfg, IConfigFeed feedCfg) {
+    //constructor
+        public TwitterFeedProvider(IConfigOAuthFeed feedCfg) {
             cfg = feedCfg;
-            oauth = new AppOnlyOAuth(oauthCfg.key, oauthCfg.secret, oauthCfg.appTokenUrl);
+            api = new OAuthAppClient(cfg.oauthToken);
         }
 
 
 
 
-        //ICallOAuthApi OAuthApi = new TwitterOAuthApi()
+    //IFeedProvider
+        /// <summary>
+        /// asynchronously returns a new Feed for a given account
+        /// </summary>
+        public async Task<Feed> AsyncGetFeed(string account) {
+            return NewFeed(account, await api.StartAsyncRequest(GetTimelineUrl(account)));
+        }
 
-
+        /// <summary>
+        /// returns a new Feed for a given account
+        /// </summary>
         public  Feed GetFeed(string account) {
-
-            var newerThen = cfg.daysToShow == 0 ? DateTime.MinValue : DateTime.Now.AddDays(-1 * cfg.daysToShow);
-
-
-            //cannot filter by date, so retrive the maximum and limit below
-            var url = string.Format("https://api.twitter.com/1.1/statuses/user_timeline.json?count={0}&screen_name={1}&exclude_replies=1", 200, account);
-
-            var content = oauth.SendRequest(url);
-            var tweets = JArray.Parse(content);
-
-
-            return new Feed(account, tweets.Select(t => {
-                var createdAt = DateTime.ParseExact(t["created_at"].ToString(), TwitterDateTimeFormat, CultureInfo.InvariantCulture);
-                return new FeedItem(account, (long) t["id"], t["text"].ToString(), createdAt, t["entities"]["user_mentions"].Count());
-            }).Where(fi => fi.createdAt > newerThen));
-
+            var t = AsyncGetFeed(account);
+            t.Wait();
+            return t.Result;
         }
 
-        //get Feeds
-
+        /// <summary>
+        /// returns a collection of Feed objects for the given accounts running the requests in parallel
+        /// </summary>
         public IEnumerable<Feed> GetFeeds(IEnumerable<string> accounts) {
-            return accounts.Select(a => GetFeed(a));
+            //should probably limit the number of requests made at once...
+            var tasks = accounts.Select(a => AsyncGetFeed(a)).ToArray();
+            Task.WaitAll(tasks.Cast<Task>().ToArray()); //todo extension method tasks.WaitAll<T>(this tasks).select(t => t.result)?
+            return tasks.Select(t => t.Result);
         }
 
+
+        /// <summary>
+        /// returns an AggregatedFeeds object for the given accounts
+        /// </summary>
         public AggregatedFeeds GetAggregatedFeeds(IEnumerable<string> accounts) {
-            return new AggregatedFeeds(GetFeeds(accounts));
+            //return new AggregatedFeeds(accounts.Select(a => GetFeed(a)));
+            return new AggregatedFeeds(GetFeeds(accounts)); //this is about 33% faster then the preceding line
         }
 
 
-        //helpers
-        //ParseDate
+
+    //helpers
+        /// <summary>
+        /// returns the timeline URL for an account
+        /// </summary>
+        public static string GetTimelineUrl(string account) {
+            return string.Format(twitterApiTimelineUrl, tweetFetchCount, account);
+        }
+
+        /// <summary>
+        /// returns a new Feed from a given twitter timeline JObject
+        /// </summary>
+        public  Feed NewFeed(string account, string result) {
+            var newerThen =  cfg.daysToShow == 0 ? DateTime.MinValue : DateTime.Now.AddDays(-1 * cfg.daysToShow);
+            return new Feed(account,  JArray.Parse(result).Select(o => NewFeedItem(o)).Where(fi => fi.createdAt > newerThen));
+        }
+
+
+        /// <summary>
+        /// returns a new FeedItem from a given twitter timeline JObject
+        /// </summary>
+        public static FeedItem NewFeedItem(JToken json) {
+            var createdAt = DateTime.ParseExact(json["created_at"].ToString(), twitterDateTimeFormat, CultureInfo.InvariantCulture);
+            return new FeedItem(json["user"]["screen_name"].ToString(), (long) json["id"], json["text"].ToString(), createdAt, json["entities"]["user_mentions"].Count());
+        }
     }
 
 }

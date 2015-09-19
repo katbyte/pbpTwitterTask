@@ -5,7 +5,7 @@ namespace katbyte.pbpTwitterTask.services {
     /// <summary>
     /// OAuth Api COnfiguration details
     /// </summary>
-    public interface IConfigOAuthApi  {
+    public interface IConfigAuthAppToken  {
 
         /// <summary>
         /// OAuth consumer key;
@@ -22,5 +22,9 @@ namespace katbyte.pbpTwitterTask.services {
         /// </summary>
         string appTokenUrl { get; }
 
+        /// <summary>
+        /// How long to cache a token for, 0 to disable
+        /// </summary>
+        int cacheForMin { get; }
     }
 }

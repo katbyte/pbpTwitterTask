@@ -1,13 +1,17 @@
 ﻿{
-    "feed": {
-        "default_account":  "pay_by_phone",
-        "default_accounts": [ "pay_by_phone", "PayByPhone", "PayByPhone_UK" ],
-        "days_to_show":    "14"
-    },
-    "oauth": {
-        "key":              "Lr7XAVhjUCNuvltyYBnTooxXa",
-        "secret":           "36MZY94Xd67S0wHJh7L6OIcKBSyFmvDnmc71fjC20BGV28qhmC",
-        "app_token_url":    "https://api.twitter.com/oauth2/token"
+    "feeds": [
+        {
+            "source": "twitter",
+            "default_account": "pay_by_phone",
+            "default_accounts": [ "pay_by_phone", "PayByPhone", "PayByPhone_UK" ],
+            "days_to_show": "14",
 
-    }
+            "oauth": {
+                "key": "Lr7XAVhjUCNuvltyYBnTooxXa",
+                "secret": "36MZY94Xd67S0wHJh7L6OIcKBSyFmvDnmc71fjC20BGV28qhmC",
+                "app_token_url": "https://api.twitter.com/oauth2/token",
+                "cache_for_min": "7"
+            }
+        }
+    ]
 }

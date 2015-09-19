@@ -1,4 +1,6 @@
-﻿using Microsoft.Framework.Configuration;
+﻿using katbyte.pbpTwitterTask.services;
+
+using Microsoft.Framework.Configuration;
 
 
 
@@ -9,9 +11,15 @@ namespace katbyte.pbpTwitterTask {
     /// </summary>
     public static class App {
 
+        /// <summary>
+        /// the default feed provider (twitter!)
+        /// </summary>
+        public static IFeedProvider feedProvider;
 
-        public static void Configure(IConfiguration cfg) {
 
+
+        public static void Configure() {
+            feedProvider = new TwitterFeedProvider(AppCfg.twitterFeed);
         }
     }
 

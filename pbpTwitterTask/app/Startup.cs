@@ -1,9 +1,16 @@
-﻿using Microsoft.AspNet.Builder;
+﻿using System.Linq;
+
+using Microsoft.AspNet.Mvc;
+using Microsoft.AspNet.Builder;
 using Microsoft.AspNet.Hosting;
 
+
+using Microsoft.Framework.Runtime;
 using Microsoft.Framework.Configuration;
 using Microsoft.Framework.DependencyInjection;
-using Microsoft.Framework.Runtime;
+
+using Newtonsoft.Json;
+
 
 
 namespace katbyte.pbpTwitterTask {
@@ -29,7 +36,13 @@ namespace katbyte.pbpTwitterTask {
 
         // Use this method to add services to the container
         public void ConfigureServices(IServiceCollection services) {
-            services.AddMvc();
+
+            services.AddMvc().Configure<MvcOptions>(opt => {
+                //change json output formatting to indented
+                foreach (JsonOutputFormatter of in opt.OutputFormatters.OfType<JsonOutputFormatter>()) {
+                    of.SerializerSettings.Formatting = Formatting.Indented;
+                }
+            });
 
             //configure app
             //TODO explore/investigate
