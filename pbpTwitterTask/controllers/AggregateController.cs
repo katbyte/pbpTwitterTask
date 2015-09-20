@@ -19,44 +19,57 @@ namespace katbyte.pbpTwitterTask.controllers {
         /// <summary>
         /// feed provider
         /// </summary>
-        public IFeedProvider feedProvider = new TwitterFeedProvider(AppCfg.twitterFeed);
-
+        public IFeed feed;
 
         /// <summary>
-        /// constructor to inject feed and oauth options
+        /// aggregation service
         /// </summary>
-        // need to define service type?
-    //    public AggregateController(IConfigOAuthApi oauthCfg, IConfigFeed feedcfg ) {
-      //      feedProvider = new TwitterFeedProvider(oauthCfg, feedcfg);
-     //   }
+        public IAggregationService aggregate;
 
 
-    //routes
-        //this should redirect to a readme/documentation
-        //for now we'll just redirect to the default account
-        //documentation via example!
+    //constructor
         /// <summary>
-        /// redirects to aggregate/default1;default2;default3...
+        /// constructor for DI of IFeed and IAggregationService
         /// </summary>
-        /// <returns></returns>
-        [HttpGet]
-        public ActionResult Get() {
-            return Redirect("aggregate/" + String.Join(";", feedProvider.cfg.defaultAccounts));
+        public AggregateController(IFeed feed, IAggregationService aggregationService) {
+            this.feed      = feed;
+            this.aggregate = aggregationService;
         }
 
 
+
+    //routes
+        /// <summary>
+        /// redirects to /api/aggregate/default1;default2;default3...
+        /// </summary>
+        [HttpGet]
+        public ActionResult Get() {
+            return Redirect("/api/aggregate/" + String.Join(";", feed.defaultAccounts));
+        }
+
+
+        /// <summary>
+        /// returns aggregated tweet data
+        /// </summary>
         [HttpGet("{accounts}")]
         public Object Get(string accounts) {
 
+
+            //TODO better handling of users not found, track the exact user
+
+
             //get feeds for accounts and aggregate them
-            var aggregated = feedProvider.GetAggregatedFeeds(accounts.Split(new []{';'}, StringSplitOptions.RemoveEmptyEntries));
+            var aggregated = aggregate.AccountFeeds(feed.accountFeedService.GetFeeds(accounts.Split(new []{';'}, StringSplitOptions.RemoveEmptyEntries), App.showNewerThen));
+
+
 
             //build response providing only the data we want to be shown
+            //should probably not be an anonymous type
             var response = new {
-                accounts = aggregated.feeds.Select(f => new {
+                accounts = aggregated.accountFeeds.Select(f => new {
                     account  = f.account,
                     tweets   = f.items.Length,
-                    mentions = f.mentionCount
+                    mentions = f.mentionTotal
                 }),
                 tweets = aggregated.aggregatedItems.Select(fi => new {
                     account   = fi.account,
@@ -64,6 +77,7 @@ namespace katbyte.pbpTwitterTask.controllers {
                     text      = fi.text
                 })
             };
+
             return response;
         }
     }

@@ -10,5 +10,9 @@
 *.xproj.user
 project.lock.json
 
-#compiled files
+#compiled/generated files
+*/bin
+*/obj
 artifacts
+packages
+TestResults

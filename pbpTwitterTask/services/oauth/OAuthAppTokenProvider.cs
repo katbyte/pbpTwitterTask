@@ -6,8 +6,6 @@ using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
 
 
-//TODO: does it make sense having this separate from AppOAuthApi?
-
 
 namespace katbyte.pbpTwitterTask.services {
 
@@ -24,9 +22,24 @@ namespace katbyte.pbpTwitterTask.services {
 
     //configuration
         /// <summary>
-        /// configuration data
+        /// OAuth consumer key;
         /// </summary>
-        public IConfigAuthAppToken cfg { get; private set; }
+        public string key { get; private set; }
+
+        /// <summary>
+        /// OAuth consumer secret
+        /// </summary>
+        public string secret  { get; private set; }
+
+        /// <summary>
+        /// OAuth App-only authentication token URL
+        /// </summary>
+        public string appTokenUrl { get; private set; }
+
+         /// <summary>
+        /// How long to cache a token for, 0 to disable
+        /// </summary>
+        public int cacheForMin { get; private set; }
 
 
     //cached token
@@ -41,7 +54,7 @@ namespace katbyte.pbpTwitterTask.services {
         //makes web request, maybe it should be a GetCachedToken() call
         public string cached { get {
 
-            if (cfg.cacheForMin == 0) {
+            if (cacheForMin == 0) {
                 //cache is disabled
                 return NewToken();
             }
@@ -50,7 +63,7 @@ namespace katbyte.pbpTwitterTask.services {
                 lock (_tokenLock) {
                     if (DateTime.Now.Ticks > _tokenExpiresAtTicks) {
                         _token               = NewToken();
-                        _tokenExpiresAtTicks = DateTime.Now.AddMinutes(cfg.cacheForMin).Ticks;
+                        _tokenExpiresAtTicks = DateTime.Now.AddMinutes(cacheForMin).Ticks;
                     }
                 }
             }
@@ -64,8 +77,12 @@ namespace katbyte.pbpTwitterTask.services {
         /// <summary>
         /// constructs an app-only oauth object for the provided configuration
         /// </summary>
-        public OAuthAppTokenProvider(IConfigAuthAppToken cfg) {
-            this.cfg = cfg;
+        public OAuthAppTokenProvider(string key, string secret, string appTokenUrl, int cacheForMin = 7) {
+            this.key         = key;
+            this.secret      = secret;
+            this.appTokenUrl = appTokenUrl;
+            this.cacheForMin = cacheForMin;
+
         }
 
 
@@ -79,8 +96,8 @@ namespace katbyte.pbpTwitterTask.services {
             using (var client = new HttpClient()) {
 
                 //prepare request
-                var request = new HttpRequestMessage(HttpMethod.Post, cfg.appTokenUrl);
-                var customerInfo = Convert.ToBase64String(new UTF8Encoding().GetBytes(cfg.key + ":" + cfg.secret));
+                var request = new HttpRequestMessage(HttpMethod.Post, appTokenUrl);
+                var customerInfo = Convert.ToBase64String(new UTF8Encoding().GetBytes(key + ":" + secret));
                 request.Headers.Add("Authorization", "Basic " + customerInfo);
                 request.Content = new StringContent("grant_type=client_credentials", Encoding.UTF8, "application/x-www-form-urlencoded");
 

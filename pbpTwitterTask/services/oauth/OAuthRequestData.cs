@@ -8,11 +8,10 @@ namespace katbyte.pbpTwitterTask.services {
 
 
 
-
     /// <summary>
     /// class to make app oauth authenticated calls to a url
     /// </summary>
-    public class OAuthAppClient  : IDisposable {
+    public class OAuthRequestData  : IRequestData, IDisposable {
 
 
         private HttpClient _client;
@@ -27,12 +26,11 @@ namespace katbyte.pbpTwitterTask.services {
 
 
         /// <summary>
-        /// configure this api to use the given oauth config
+        /// configure this OAuth ApiClient to use the given token provider
         /// </summary>
-        /// <param name="oauthCfg"></param>
-        public OAuthAppClient(IConfigAuthAppToken oauthCfg) {
-            tokenProvider = new OAuthAppTokenProvider(oauthCfg);
-            _client       = new HttpClient();
+        public OAuthRequestData(OAuthAppTokenProvider tokenProvider) {
+            this.tokenProvider = tokenProvider;
+            _client            = new HttpClient();
         }
 
 

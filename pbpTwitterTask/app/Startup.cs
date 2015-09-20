@@ -4,16 +4,18 @@ using Microsoft.AspNet.Mvc;
 using Microsoft.AspNet.Builder;
 using Microsoft.AspNet.Hosting;
 
-
 using Microsoft.Framework.Runtime;
 using Microsoft.Framework.Configuration;
 using Microsoft.Framework.DependencyInjection;
 
 using Newtonsoft.Json;
 
+using katbyte.pbpTwitterTask.services;
+
 
 
 namespace katbyte.pbpTwitterTask {
+
 
     public class Startup {
 
@@ -45,10 +47,11 @@ namespace katbyte.pbpTwitterTask {
             });
 
             //configure app
-            //TODO explore/investigate
-            //services.Configure<AppCfg>(configuration);
-            AppCfg.Configure(configuration);
+            App.Configure(configuration);
 
+            //configure DI
+            services.AddInstance(typeof(IFeed),                 App.twitterFeed);
+            services.AddInstance(typeof(IAggregationService),   AggregationService.instance);
         }
 
 
@@ -60,8 +63,6 @@ namespace katbyte.pbpTwitterTask {
             // Add MVC to the request pipeline.
             app.UseMvc();
 
-
         }
-
     }
 }

@@ -14,7 +14,7 @@ namespace katbyte.pbpTwitterTask.models {
         /// <summary>
         /// the feeds aggragated
         /// </summary>
-        public readonly Feed[] feeds;
+        public readonly AccountFeed[] accountFeeds;
 
 
         /// <summary>
@@ -22,17 +22,17 @@ namespace katbyte.pbpTwitterTask.models {
         /// </summary>
         public           FeedItem[]        aggregatedItems => _aggregatedFeedItems.Value;
 
-        //lazy load as it is potentially an expensive op
+        //lets lazy load as it is potentially an expensive op if there are mannnny feeds
         private readonly Lazy<FeedItem[]> _aggregatedFeedItems;
 
 
         /// <summary>
         /// create a new aggregated feed object for the given feeds
         /// </summary>
-        public AggregatedFeeds(IEnumerable<Feed> feeds) {
+        public AggregatedFeeds(IEnumerable<AccountFeed> feeds) {
 
-            this.feeds = feeds.ToArray();
-            _aggregatedFeedItems = new Lazy<FeedItem[]>(() => this.feeds.SelectMany(f => f.items).OrderByDescending(i => i.createdAt).ToArray());
+            this.accountFeeds = feeds.ToArray();
+            _aggregatedFeedItems = new Lazy<FeedItem[]>(() => this.accountFeeds.SelectMany(f => f.items).OrderByDescending(i => i.createdAt).ToArray());
         }
     }
 

@@ -1,10 +1,12 @@
 ﻿{
+    "app": {
+        "days_to_show": "14"
+    },
     "feeds": [
         {
-            "source": "twitter",
-            "default_account": "pay_by_phone",
+            "source":           "twitter",
+            "default_account":  "pay_by_phone",
             "default_accounts": [ "pay_by_phone", "PayByPhone", "PayByPhone_UK" ],
-            "days_to_show": "14",
 
             "oauth": {
                 "key": "Lr7XAVhjUCNuvltyYBnTooxXa",

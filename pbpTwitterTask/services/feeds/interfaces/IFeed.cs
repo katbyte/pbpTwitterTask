@@ -1,15 +1,16 @@
-﻿
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
 
 
 namespace katbyte.pbpTwitterTask.services {
 
     /// <summary>
-    /// Twitter feed configuration details
+    /// a feed (twitter etc) used for feed data
     /// </summary>
-    public interface IConfigOAuthFeed  { //inherit from IConfigFeed?
+    public interface IFeed {
 
+
+    //configuration
         /// <summary>
         /// name of the feed source (twitter, instragram etc)
         /// </summary>
@@ -18,23 +19,23 @@ namespace katbyte.pbpTwitterTask.services {
         /// <summary>
         /// default account for this feed
         /// </summary>
-        string defaultAccount { get; }
+        string defaultAccount { get;  }
 
         /// <summary>
         /// default accounts for this feed
         /// </summary>
-        IEnumerable<string> defaultAccounts { get; }
+        IEnumerable<string> defaultAccounts { get;  }
+
+
+    //service
+        /// <summary>
+        /// feed item service
+        /// </summary>
+        IFeedItemService feedItemService { get; }
 
         /// <summary>
-        /// days of tweets to show (ie 14 for last 2 weeks)
+        /// account feed service
         /// </summary>
-        int daysToShow { get; }
-
-        /// <summary>
-        /// OAuth Api configuration details
-        /// </summary>
-        IConfigAuthAppToken oauthToken { get; }
-
-
+        IAccountFeedService accountFeedService { get; }
     }
 }
